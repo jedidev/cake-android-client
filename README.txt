@@ -1,3 +1,16 @@
+
+Notes by Tristan Heal (27 Aug 2017)
+
+- Fixed the various issues which were causing crashes at startup.
+- Set the support libraries to use a fixed version in Gradle as is best practices
+- Moved numeric sizes from layout files to dimens.xml and then referenced
+- Rationalised HttpUrlConnection into single class returning byte[]
+- Image Caching
+- Fixed readUnknownFully
+- Changed use of ListFragment to RecyclerView 
+- Fixed layout issues for list item
+
+
 Coding Test (fictitious)
 
 

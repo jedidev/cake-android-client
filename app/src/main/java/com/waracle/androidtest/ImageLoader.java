@@ -2,44 +2,51 @@ package com.waracle.androidtest;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.text.TextUtils;
+import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.ImageView;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.InvalidParameterException;
 
-/**
- * Created by Riad on 20/05/2015.
- */
-public class ImageLoader {
+class ImageLoader extends AsyncTask<String, Void, Bitmap> {
 
     private static final String TAG = ImageLoader.class.getSimpleName();
 
-    public ImageLoader() { /**/ }
+    private LoadImageTaskCallback mCallback;
 
-    /**
-     * Simple function for loading a bitmap image from the web
-     *
-     * @param url       image url
-     * @param imageView view to set image too.
-     */
-    public void load(String url, ImageView imageView) {
-        if (TextUtils.isEmpty(url)) {
-            throw new InvalidParameterException("URL is empty!");
-        }
+    ImageLoader(@NonNull LoadImageTaskCallback callback) {
+        mCallback = callback;
+    }
 
-        // Can you think of a way to improve loading of bitmaps
-        // that have already been loaded previously??
-
+    @Override
+    protected Bitmap doInBackground(String... params) {
+        Bitmap bitmap = null;
+        String url = params[0];
         try {
-            setImageView(imageView, convertToBitmap(loadImageData(url)));
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            byte[] imageData = loadImageData(url);
+            if (imageData != null) {
+                bitmap = convertToBitmap(imageData);
+            }
+        } catch (Exception e) {
+            if (e.getMessage() != null) {
+                Log.e(TAG, e.getMessage());
+            }
         }
+        return bitmap;
+    }
+
+    @Override
+    protected void onPostExecute(Bitmap bitmap) {
+        mCallback.imageLoaded(bitmap);
+    }
+
+    interface LoadImageTaskCallback {
+
+        void imageLoaded(Bitmap bitmap);
     }
 
     private static byte[] loadImageData(String url) throws IOException {
@@ -69,9 +76,5 @@ public class ImageLoader {
 
     private static Bitmap convertToBitmap(byte[] data) {
         return BitmapFactory.decodeByteArray(data, 0, data.length);
-    }
-
-    private static void setImageView(ImageView imageView, Bitmap bitmap) {
-        imageView.setImageBitmap(bitmap);
     }
 }
